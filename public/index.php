@@ -60,11 +60,18 @@ $app->post('/webhook', function (Request $request, Response $response) use ($cha
                 if($event['message']['type'] == 'text'){
 
                     // send same message as reply to user
-                    $result = $bot->replyText($event['replyToken'], $event['message']['text']);
-     
-                    // or we can use replyMessage() instead to send reply message
-                    // $textMessageBuilder = new TextMessageBuilder($event['message']['text']);
-                    // $result = $bot->replyMessage($event['replyToken'], $textMessageBuilder);
+                    $msg1 = new TextMessageBuilder($event['message']['text']);
+                    $msg2 = new TextMessageBuilder($event['message']['text']);
+                    $msg3 = new TextMessageBuilder($event['message']['text']);
+                    $msg4 = new TextMessageBuilder("wkwkwk biar kaya gema gitu 3x");
+
+                    $multi_msg = new MultiMessageBuilder();
+                    $multi_msg->add($msg1);
+                    $multi_msg->add($msg2);
+                    $multi_msg->add($msg3);
+                    $multi_msg->add($msg4);
+
+                    $result = $bot->replyMessage($event['replyToken'], $multi_msg);
      
                     $response->getBody()->write(json_encode($result->getJSONDecodedBody()));
                     return $response
