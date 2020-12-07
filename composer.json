@@ -1,0 +1,24 @@
+{
+    "name": "wildangunawan/line-bot",
+    "description": "Simple LINE bot using PHP Slim framework",
+    "type": "project",
+    "require": {
+        "php": "^7.4",
+        "slim/slim": "^4.7",
+        "linecorp/line-bot-sdk": "^6.0",
+        "slim/psr7": "^1.3",
+        "nyholm/psr7": "^1.3",
+        "nyholm/psr7-server": "^1.0",
+        "guzzlehttp/psr7": "^1.7",
+        "http-interop/http-factory-guzzle": "^1.0",
+        "laminas/laminas-diactoros": "^2.5"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Wildan Gunawan",
+            "email": "me@wildan.web.id"
+        }
+    ],
+    "minimum-stability": "stable"
+}
