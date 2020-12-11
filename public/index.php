@@ -162,7 +162,7 @@ $app->post('/webhook', function (Request $request, Response $response) use ($cha
                                 }
                             }
 
-                            if (is_empty($tugas)){
+                            if (empty($tugas)){
                                 $teks = "Tidak ada tugas yang pending.";
                                 $result = $bot->replyText($event['replyToken'], $teks);
                             } else {
