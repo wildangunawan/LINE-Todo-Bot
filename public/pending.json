@@ -1,6 +1,6 @@
 {
   "type": "bubble",
-  "size": "nano",
+  "size": "small",
   "header": {
     "type": "box",
     "layout": "vertical",
@@ -16,7 +16,7 @@
       },
       {
         "type": "text",
-        "text": "Ada 1 tugas yang pending",
+        "text": "",
         "wrap": true,
         "size": "sm",
         "margin": "sm",
@@ -35,14 +35,7 @@
       {
         "type": "box",
         "layout": "vertical",
-        "contents": [
-          {
-          "type": "text",
-          "text": "1. hi",
-          "color": "#8C8C8C",
-          "size": "sm",
-          "wrap": true
-        }],
+        "contents": [],
         "flex": 1
       }
     ],
