@@ -188,7 +188,7 @@ $app->post('/webhook', function (Request $request, Response $response) use ($cha
                                         [
                                             'type'     => 'flex',
                                             'altText'  => 'Lihat daftar tugas',
-                                            'contents' => json_encode($flexTemplate)
+                                            'contents' => json_decode(json_encode($flexTemplate))
                                         ]
                                     ],
                                 ]);
