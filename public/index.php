@@ -104,7 +104,15 @@ $app->post('/webhook', function (Request $request, Response $response) use ($cha
             if ($event['type'] == 'message'){
                 // typenya text?
                 if($event['message']['type'] == 'text'){
-                    echo $event['message'];
+
+                    # ambil sender
+                    if ($event['source']['type'] == "user"){
+                        $sumber = $event['source']['userId'];
+                    } else if ($event['source']['type'] == "room"){
+                        $sumber = $event['source']['roomId'];
+                    } else if ($event['source']['type'] == "group"){
+                        $sumber = $event['source']['groupId'];
+                    }
 
                     # cek awalna
                     if (substr($event['message']['text'], 0, 1) == "."){
@@ -122,121 +130,111 @@ $app->post('/webhook', function (Request $request, Response $response) use ($cha
 
                             $result = $bot->replyMessage($event['replyToken'], $multi_msg);
                         }
-                    }
+                        
+                        # lihat tugas?
+                        else if ($event['message']['text'] == ".lihat"){
+                            $tugas = [];
 
-                    # ambil source
-                    if ($event['source']['type'] == "user"){
-                        $sumber = $event['source']['userId'];
-                    } else if ($event['source']['type'] == "room"){
-                        $sumber = $event['source']['roomId'];
-                    } else if ($event['source']['type'] == "group"){
-                        $sumber = $event['source']['groupId'];
-                    }
+                            // select di database
+                            $query = "SELECT `id`, `detail` FROM `tugas` WHERE `room_id` = '$sumber'";
+                            $result = mysqli_query($conn, $query);
 
-                    # lihat tugas?
-                    if ($event['message']['text'] == ".lihat"){
-                        $tugas = [];
+                            if (mysqli_num_rows($result) > 0){
+                                while($row = mysqli_fetch_assoc($result)) {
+                                    $tugas[$row['id']] = $row["detail"];
+                                }
+                            }
 
-                        // select di database
-                        $query = "SELECT `id`, `detail` FROM `tugas` WHERE `room_id` = '$sumber'";
-                        $result = mysqli_query($conn, $query);
+                            if (is_empty($tugas)){
+                                $teks = "Tidak ada tugas yang pending.";
+                                $result = $bot->replyText($event['replyToken'], $teks);
+                            } else {
+                                $flexTemplate = file_get_contents("../flex_message.json"); 
+                                $flexTemplate = json_decode($flexTemplate);
 
-                        if (mysqli_num_rows($result) > 0){
-                            while($row = mysqli_fetch_assoc($result)) {
-                                $tugas[$row['id']] = $row["detail"];
+                                $flexTemplate['header']['contents'][1]['text'] = "Ada {count($tugas)} tugas yang pending";
+
+                                foreach ($tugas as $id => $detail) {
+                                    $flexTemplate['body']['contents']['contents'][] = [
+                                            "type" => "text",
+                                            "text" => $id . ". " . $detail,
+                                            "color" => "#8C8C8C",
+                                            "size" => "sm",
+                                            "wrap" => true
+                                    ];
+                                }
+
+                                $result = $httpClient->post(LINEBot::DEFAULT_ENDPOINT_BASE . '/v2/bot/message/reply', [
+                                    'replyToken' => $event['replyToken'],
+                                    'messages'   => [
+                                        [
+                                            'type'     => 'flex',
+                                            'altText'  => 'Test Flex Message',
+                                            'contents' => $flexTemplate
+                                        ]
+                                    ],
+                                ]);
+                            }
+
+                            $response->getBody()->write(json_encode($result->getJSONDecodedBody()));
+                            return $response
+                                ->withHeader('Content-Type', 'application/json')
+                                ->withStatus($result->getHTTPStatus());
+                        }
+
+                        # hapus tugas
+                        else if (substr($event['message']['text'], 0, 6) == ".hapus"){
+                            $id = substr($event['message']['text'], 7);
+
+                            $query = "DELETE FROM `tugas` WHERE `room_id` = '$sumber' AND `id` = '$id'";
+
+                            if (mysqli_query($conn, $query)){
+                                $teks = "Tugas berhasil terhapus!";
+                                $result = $bot->replyText($event['replyToken'], $teks);
+                            } else {
+                                $teks = "Tugas tidak dapat dihapus. Apa nomor ID yang Anda masukkan sudah benar?";
+                                $result = $bot->replyText($event['replyToken'], $teks);
                             }
                         }
 
-                        if (is_empty($tugas)){
-                            $teks = "Tidak ada tugas yang pending.";
-                            $result = $bot->replyText($event['replyToken'], $teks);
+                        # tambah tugas
+                        else if (substr($event['message']['text'], 0, 7) == ".tambah"){
+                            $detail = substr($event['message']['text'], 8);
+
+                            $query = "INSERT INTO `tugas`(`room_id`, `detail`) VALUES ('$sumber', '$detail')";
+
+                            if (mysqli_query($conn, $query)){
+                                $teks = "Tugas berhasil ditambahkan!";
+                                $result = $bot->replyText($event['replyToken'], $teks);
+                            } else {
+                                $teks = "Hmm ... Tugas tidak dapat ditambahkan.";
+                                $result = $bot->replyText($event['replyToken'], $teks);
+                            }
                         } else {
-                            $flexTemplate = file_get_contents("../flex_message.json"); 
-                            $flexTemplate = json_decode($flexTemplate);
+                            # tidak di atas
+                            # fuzzywuzzy to the action
+                            $fuzz = new Fuzz();
+                            $process = new Process($fuzz);
 
-                            $flexTemplate['header']['contents'][1]['text'] = "Ada {count($tugas)} tugas yang pending";
+                            # max dan kemungkinan
+                            $max = -1;
+                            # pilihan
+                            $pilihan = ['.help', '.tambah', '.hapus', '.lihat'];
 
-                            foreach ($tugas as $id => $detail) {
-                                $flexTemplate['body']['contents']['contents'][] = [
-                                        "type" => "text",
-                                        "text" => $id . ". " . $detail,
-                                        "color" => "#8C8C8C",
-                                        "size" => "sm",
-                                        "wrap" => true
-                                ];
+                            foreach ($pilihan as $p) {
+                                $rasio = $fuzz->ratio($event['message']['text'], $p);
+
+                                if ($rasio > $max){
+                                    $max = $rasio;
+                                    $kemungkinan = $p;
+                                }
                             }
 
-                            $result = $httpClient->post(LINEBot::DEFAULT_ENDPOINT_BASE . '/v2/bot/message/reply', [
-                                'replyToken' => $event['replyToken'],
-                                'messages'   => [
-                                    [
-                                        'type'     => 'flex',
-                                        'altText'  => 'Test Flex Message',
-                                        'contents' => $flexTemplate
-                                    ]
-                                ],
-                            ]);
-                        }
-
-                        $response->getBody()->write(json_encode($result->getJSONDecodedBody()));
-                        return $response
-                            ->withHeader('Content-Type', 'application/json')
-                            ->withStatus($result->getHTTPStatus());
-                    }
-
-                    # hapus tugas
-                    if (substr($event['message']['text'], 0, 6) == ".hapus"){
-                        $id = substr($event['message']['text'], 7);
-
-                        $query = "DELETE FROM `tugas` WHERE `room_id` = '$sumber' AND `id` = '$id'";
-
-                        if (mysqli_query($conn, $query)){
-                            $teks = "Tugas berhasil terhapus!";
-                            $result = $bot->replyText($event['replyToken'], $teks);
-                        } else {
-                            $teks = "Tugas tidak dapat dihapus. Apa nomor ID yang Anda masukkan sudah benar?";
+                            # send back
+                            $teks = "Maaf, tapi saya tidak mengerti. Mungkin maksud Anda {$kemungkinan}?";
                             $result = $bot->replyText($event['replyToken'], $teks);
                         }
                     }
-
-                    # tambah tugas
-                    if (substr($event['message']['text'], 0, 7) == ".tambah"){
-                        $detail = substr($event['message']['text'], 8);
-
-                        $query = "INSERT INTO `tugas`(`room_id`, `detail`) VALUES ('$sumber', '$detail')";
-
-                        if (mysqli_query($conn, $query)){
-                            $teks = "Tugas berhasil ditambahkan!";
-                            $result = $bot->replyText($event['replyToken'], $teks);
-                        } else {
-                            $teks = "Hmm ... Tugas tidak dapat ditambahkan.";
-                            $result = $bot->replyText($event['replyToken'], $teks);
-                        }
-                    }
-
-                    # tidak di atas
-                    # fuzzywuzzy to the action
-                    $fuzz = new Fuzz();
-                    $process = new Process($fuzz);
-
-                    # max dan kemungkinan
-                    $max = -1;
-                    # pilihan
-                    $pilihan = ['.help', '.tambah', '.hapus', '.lihat'];
-
-                    foreach ($pilihan as $p) {
-                        $rasio = $fuzz->ratio($event['message']['text'], $p);
-
-                        if ($rasio > $max){
-                            $max = $rasio;
-                            $kemungkinan = $p;
-                        }
-                    }
-
-                    # send back
-                    $teks = "Maaf, tapi saya tidak mengerti. Mungkin maksud Anda {$kemungkinan}?";
-                    $result = $bot->replyText($event['replyToken'], $teks);
-
                 }
      
                 $response->getBody()->write(json_encode($result->getJSONDecodedBody()));
