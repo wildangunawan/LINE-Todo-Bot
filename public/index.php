@@ -166,10 +166,11 @@ $app->post('/webhook', function (Request $request, Response $response) use ($cha
                                 $teks = "Tidak ada tugas yang pending.";
                                 $result = $bot->replyText($event['replyToken'], $teks);
                             } else {
+                                $counter = count($tugas);
                                 $flexTemplate = file_get_contents("../flex_message.json"); 
                                 $flexTemplate = json_decode($flexTemplate);
 
-                                $flexTemplate['header']['contents'][1]['text'] = "Ada {count($tugas)} tugas yang pending";
+                                $flexTemplate['header']['contents'][1]['text'] = "Ada $counter tugas yang pending";
 
                                 foreach ($tugas as $id => $detail) {
                                     $flexTemplate['body']['contents']['contents'][] = [
