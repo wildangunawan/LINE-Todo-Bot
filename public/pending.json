@@ -1,6 +1,6 @@
 {
   "type": "bubble",
-  "size": "small",
+  "size": "nano",
   "header": {
     "type": "box",
     "layout": "vertical",
@@ -16,7 +16,7 @@
       },
       {
         "type": "text",
-        "text": "Ada 3 tugas yang pending",
+        "text": "dsadsads",
         "wrap": true,
         "size": "sm",
         "margin": "sm",
@@ -31,37 +31,22 @@
   "body": {
     "type": "box",
     "layout": "vertical",
-    "contents": {
-      "0": {
+    "contents": [
+      {
         "type": "box",
         "layout": "vertical",
-        "contents": [],
+        "contents": [
+          {
+            "type": "text",
+            "text": "2. hoho",
+            "color": "#8C8C8C",
+            "size": "sm",
+            "wrap": true
+          }
+        ],
         "flex": 1
-      },
-      "contents": [
-        {
-          "type": "text",
-          "text": "2. hoho",
-          "color": "#8C8C8C",
-          "size": "sm",
-          "wrap": true
-        },
-        {
-          "type": "text",
-          "text": "3. 1",
-          "color": "#8C8C8C",
-          "size": "sm",
-          "wrap": true
-        },
-        {
-          "type": "text",
-          "text": "5. apa",
-          "color": "#8C8C8C",
-          "size": "sm",
-          "wrap": true
-        }
-      ]
-    },
+      }
+    ],
     "spacing": "md",
     "paddingAll": "12px"
   },
