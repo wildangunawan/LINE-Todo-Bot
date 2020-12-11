@@ -167,7 +167,7 @@ $app->post('/webhook', function (Request $request, Response $response) use ($cha
                                 $result = $bot->replyText($event['replyToken'], $teks);
                             } else {
                                 $counter = count($tugas);
-                                $flexTemplate = file_get_contents("../flex_message.json"); 
+                                $flexTemplate = file_get_contents("pending.json"); 
                                 $flexTemplate = json_decode($flexTemplate);
 
                                 $flexTemplate['header']['contents'][1]['text'] = "Ada $counter tugas yang pending";
