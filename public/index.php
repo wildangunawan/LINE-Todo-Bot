@@ -125,8 +125,8 @@ $app->post('/webhook', function (Request $request, Response $response) use ($cha
                     }
 
                     # ambil source
-                    if ($event['source']['type'] == "user"){
-                        $sumber = $event['source']['userID'];
+                    if ($event['source']['type'] == "user"){userId
+                        $sumber = $event['source']['userId'];
                     } else if ($event['source']['type'] == "room"){
                         $sumber = $event['source']['roomId'];
                     } else if ($event['source']['type'] == "group"){
@@ -225,7 +225,7 @@ $app->post('/webhook', function (Request $request, Response $response) use ($cha
                     $pilihan = ['.help', '.tambah', '.hapus', '.lihat'];
 
                     foreach ($pilihan as $p) {
-                        $rasio = $fuzz->ratio($event['messsage']['text'], $p);
+                        $rasio = $fuzz->ratio($event['message']['text'], $p);
 
                         if ($rasio > $max){
                             $max = $rasio;
