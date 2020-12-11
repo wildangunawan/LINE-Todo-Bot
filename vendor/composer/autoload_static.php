@@ -66,6 +66,7 @@ class ComposerStaticInit918880ae52d06cae8fc57d8079e03fa7
         ),
         'F' => 
         array (
+            'FuzzyWuzzy\\' => 11,
             'Fig\\Http\\Message\\' => 17,
             'FastRoute\\' => 10,
         ),
@@ -134,6 +135,10 @@ class ComposerStaticInit918880ae52d06cae8fc57d8079e03fa7
         array (
             0 => __DIR__ . '/..' . '/guzzlehttp/psr7/src',
         ),
+        'FuzzyWuzzy\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/wyndow/fuzzywuzzy/lib',
+        ),
         'Fig\\Http\\Message\\' => 
         array (
             0 => __DIR__ . '/..' . '/fig/http-message-util/src',
@@ -141,6 +146,16 @@ class ComposerStaticInit918880ae52d06cae8fc57d8079e03fa7
         'FastRoute\\' => 
         array (
             0 => __DIR__ . '/..' . '/nikic/fast-route/src',
+        ),
+    );
+
+    public static $prefixesPsr0 = array (
+        'D' => 
+        array (
+            'Diff' => 
+            array (
+                0 => __DIR__ . '/..' . '/phpspec/php-diff/lib',
+            ),
         ),
     );
 
@@ -157,6 +172,7 @@ class ComposerStaticInit918880ae52d06cae8fc57d8079e03fa7
         return \Closure::bind(function () use ($loader) {
             $loader->prefixLengthsPsr4 = ComposerStaticInit918880ae52d06cae8fc57d8079e03fa7::$prefixLengthsPsr4;
             $loader->prefixDirsPsr4 = ComposerStaticInit918880ae52d06cae8fc57d8079e03fa7::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInit918880ae52d06cae8fc57d8079e03fa7::$prefixesPsr0;
             $loader->classMap = ComposerStaticInit918880ae52d06cae8fc57d8079e03fa7::$classMap;
 
         }, null, ClassLoader::class);

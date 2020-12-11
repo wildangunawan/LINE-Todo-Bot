@@ -1,5 +1,6 @@
 <?php
 require __DIR__ . '/../vendor/autoload.php';
+require 'connection.php';
  
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -11,6 +12,10 @@ use \LINE\LINEBot\MessageBuilder\MultiMessageBuilder;
 use \LINE\LINEBot\MessageBuilder\TextMessageBuilder;
 use \LINE\LINEBot\MessageBuilder\StickerMessageBuilder;
 use \LINE\LINEBot\SignatureValidator as SignatureValidator;
+
+// fuzzywuzzy
+use FuzzyWuzzy\Fuzz;
+use FuzzyWuzzy\Process;
  
 $pass_signature = false;
  
@@ -54,24 +59,183 @@ $app->post('/webhook', function (Request $request, Response $response) use ($cha
     $data = json_decode($body, true);
     if(is_array($data['events'])){
         foreach ($data['events'] as $event){
-            // typenya message?
+            // dari setiap reaction kita cek
+            // 1. user add as friend aka follow
+            if ($event['type'] == "follow"){
+                // welcome msg
+                $welcome = new TextMessageBuilder("Halo! Terima kasih telah menambahkan bot ini menjadi teman kamu. Sesuai namanya, kamu dapat menggunakan bot ini untuk menuliskan tugas-tugas kamu.");
+
+                // help mgs
+                $help = new TextMessageBuilder("Untuk menggunakan bot ini, kirimkan .help (dengan titik). Bot akan segera menjawab kamu dengan pilihan-pilihan perintah yang dapat dipahami oleh bot.");
+
+                $multi_msg = new MultiMessageBuilder();
+                $multi_msg->add($welcome);
+                $multi_msg->add($help);
+
+                $result = $bot->replyMessage($event['replyToken'], $multi_msg);
+     
+                $response->getBody()->write(json_encode($result->getJSONDecodedBody()));
+                return $response
+                    ->withHeader('Content-Type', 'application/json')
+                    ->withStatus($result->getHTTPStatus());
+            }
+
+            // 2. ditambahkan dalam grup
+            if ($event['type'] == "join"){
+                // welcome msg
+                $welcome = new TextMessageBuilder("Halo! Terima kasih telah menambahkan bot ini ke dalam grup atau multiple chat kamu. Sesuai namanya, kamu dapat menggunakan bot ini untuk menuliskan tugas-tugas kamu.");
+
+                // help mgs
+                $help = new TextMessageBuilder("Untuk menggunakan bot ini, kirimkan .help (dengan titik). Bot akan segera menjawab kamu dengan pilihan-pilihan perintah yang dapat dipahami oleh bot.");
+
+                $multi_msg = new MultiMessageBuilder();
+                $multi_msg->add($welcome);
+                $multi_msg->add($help);
+
+                $result = $bot->replyMessage($event['replyToken'], $multi_msg);
+     
+                $response->getBody()->write(json_encode($result->getJSONDecodedBody()));
+                return $response
+                    ->withHeader('Content-Type', 'application/json')
+                    ->withStatus($result->getHTTPStatus());
+            }
+
+            // 3. menjawab perintah
             if ($event['type'] == 'message'){
                 // typenya text?
                 if($event['message']['type'] == 'text'){
 
-                    // send same message as reply to user
-                    $msg1 = new TextMessageBuilder($event['message']['text']);
-                    $msg2 = new TextMessageBuilder($event['message']['text']);
-                    $msg3 = new TextMessageBuilder($event['message']['text']);
-                    $msg4 = new TextMessageBuilder("wkwkwk biar kaya gema gitu 3x");
+                    # cek awalna
+                    if (substr($event['message']['text'], 0, 1) == "."){
+                        # minta bantuan?
+                        if ($event['message']['text'] == ".help"){
+                            $bantuan = new TextMessageBuilder("Untuk menggunakan bot ini, silakan gunakan beberapa perintah di bawah ini ya.
 
-                    $multi_msg = new MultiMessageBuilder();
-                    $multi_msg->add($msg1);
-                    $multi_msg->add($msg2);
-                    $multi_msg->add($msg3);
-                    $multi_msg->add($msg4);
+                                .help, untuk menampilkan pesan ini.
+                                .lihat, untuk menampilkan semua tugas.
+                                .tambah <tugas>, untuk menambahkan tugas.
+                                .hapus <id>, untuk menghapus tugas.");
 
-                    $result = $bot->replyMessage($event['replyToken'], $multi_msg);
+                            $multi_msg = new MultiMessageBuilder();
+                            $multi_msg->add($bantuan);
+
+                            $result = $bot->replyMessage($event['replyToken'], $multi_msg);
+                        }
+
+                        # ambil source
+                        if ($event['source']['type'] == "user"){
+                            $sumber = $event['source']['userID'];
+                        } else if ($event['source']['type'] == "room"){
+                            $sumber = $event['source']['roomId'];
+                        } else if ($event['source']['type'] == "group"){
+                            $sumber = $event['source']['groupId'];
+                        }
+
+                        # lihat tugas?
+                        if ($event['message']['text'] == ".lihat"){
+                            $tugas = [];
+
+                            // select di database
+                            $query = "SELECT `id`, `detail` FROM `tugas` WHERE `room_id` = '$sumber'";
+                            $result = mysqli_query($conn, $query);
+
+                            if (mysqli_num_rows($result) > 0){
+                                while($row = mysqli_fetch_assoc($result)) {
+                                    $tugas[$row['id']] = $row["detail"];
+                                }
+                            }
+
+                            if (is_empty($tugas)){
+                                $teks = "Tidak ada tugas yang pending.";
+                                $result = $bot->replyText($event['replyToken'], $teks);
+                            } else {
+                                $flexTemplate = file_get_contents("../flex_message.json"); 
+                                $flexTemplate = json_decode($flexTemplate);
+
+                                $flexTemplate['header']['contents'][1]['text'] = "Ada {count($tugas)} tugas yang pending";
+
+                                foreach ($tugas as $id => $detail) {
+                                    $flexTemplate['body']['contents']['contents'][] = [
+                                            "type" => "text",
+                                            "text" => $id . ". " . $detail,
+                                            "color" => "#8C8C8C",
+                                            "size" => "sm",
+                                            "wrap" => true
+                                    ]
+                                }
+
+                                $result = $httpClient->post(LINEBot::DEFAULT_ENDPOINT_BASE . '/v2/bot/message/reply', [
+                                    'replyToken' => $event['replyToken'],
+                                    'messages'   => [
+                                        [
+                                            'type'     => 'flex',
+                                            'altText'  => 'Test Flex Message',
+                                            'contents' => $flexTemplate
+                                        ]
+                                    ],
+                                ]);
+                            }
+
+                            $response->getBody()->write(json_encode($result->getJSONDecodedBody()));
+                            return $response
+                                ->withHeader('Content-Type', 'application/json')
+                                ->withStatus($result->getHTTPStatus());
+                        }
+
+                        # hapus tugas
+                        if (substr($event['message']['text'], 0, 6) == ".hapus"){
+                            $id = substr($event['message']['text'], 7);
+
+                            $query = "DELETE FROM `tugas` WHERE `room_id` = '$sumber' AND `id` = '$id'";
+
+                            if (mysqli_query($conn, $query)){
+                                $teks = "Tugas berhasil terhapus!";
+                                $result = $bot->replyText($event['replyToken'], $teks);
+                            } else {
+                                $teks = "Tugas tidak dapat dihapus. Apa nomor ID yang Anda masukkan sudah benar?";
+                                $result = $bot->replyText($event['replyToken'], $teks);
+                            }
+                        }
+
+                        # tambah tugas
+                        if (substr($event['message']['text'], 0, 7) == ".tambah"){
+                            $detail = substr($event['message']['text'], 8);
+
+                            $query = "INSERT INTO `tugas`(`room_id`, `detail`) VALUES ('$sumber', '$detail')";
+
+                            if (mysqli_query($conn, $query)){
+                                $teks = "Tugas berhasil ditambahkan!";
+                                $result = $bot->replyText($event['replyToken'], $teks);
+                            } else {
+                                $teks = "Hmm ... Tugas tidak dapat ditambahkan.";
+                                $result = $bot->replyText($event['replyToken'], $teks);
+                            }
+                        }
+
+                        # tidak di atas
+                        # fuzzywuzzy to the action
+                        $fuzz = new Fuzz();
+                        $process = new Process($fuzz);
+
+                        # max dan kemungkinan
+                        $max = -1;
+                        # pilihan
+                        $pilihan = ['.help', '.tambah', '.hapus', '.lihat'];
+
+                        foreach ($pilihan as $p) {
+                            $rasio = $fuzz->ratio($event['messsage']['text'], $p);
+
+                            if ($rasio > $max){
+                                $max = $rasio;
+                                $kemungkinan = $p;
+                            }
+                        }
+
+                        # send back
+                        $teks = "Maaf, tapi saya tidak mengerti. Mungkin maksud Anda {$kemungkinan}?";
+                        $result = $bot->replyText($event['replyToken'], $teks);
+
+                    }
      
                     $response->getBody()->write(json_encode($result->getJSONDecodedBody()));
                     return $response

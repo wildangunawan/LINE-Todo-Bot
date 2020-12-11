@@ -1,12 +1,12 @@
 <?php return array (
   'root' => 
   array (
-    'pretty_version' => '1.0.0+no-version-set',
-    'version' => '1.0.0.0',
+    'pretty_version' => 'dev-master',
+    'version' => 'dev-master',
     'aliases' => 
     array (
     ),
-    'reference' => NULL,
+    'reference' => '0d46061b9a0f12ec21f1cf777e4f6577856320cc',
     'name' => 'wildangunawan/line-bot',
   ),
   'versions' => 
@@ -100,6 +100,15 @@
       array (
       ),
       'reference' => 'a478cb11f66a6ac48d8954216cfed9aa06a501a1',
+    ),
+    'phpspec/php-diff' => 
+    array (
+      'pretty_version' => 'v1.1.3',
+      'version' => '1.1.3.0',
+      'aliases' => 
+      array (
+      ),
+      'reference' => 'fc1156187f9f6c8395886fe85ed88a0a245d72e9',
     ),
     'psr/container' => 
     array (
@@ -208,12 +217,21 @@
     ),
     'wildangunawan/line-bot' => 
     array (
-      'pretty_version' => '1.0.0+no-version-set',
-      'version' => '1.0.0.0',
+      'pretty_version' => 'dev-master',
+      'version' => 'dev-master',
       'aliases' => 
       array (
       ),
-      'reference' => NULL,
+      'reference' => '0d46061b9a0f12ec21f1cf777e4f6577856320cc',
+    ),
+    'wyndow/fuzzywuzzy' => 
+    array (
+      'pretty_version' => 'v0.6.0',
+      'version' => '0.6.0.0',
+      'aliases' => 
+      array (
+      ),
+      'reference' => '6249a966a97ffc231d743ea5c4ccb4e6797582f5',
     ),
     'zendframework/zend-diactoros' => 
     array (
