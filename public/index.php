@@ -120,15 +120,20 @@ $app->post('/webhook', function (Request $request, Response $response) use ($cha
                         if ($event['message']['text'] == ".help"){
                             $bantuan = new TextMessageBuilder("Untuk menggunakan bot ini, silakan gunakan beberapa perintah di bawah ini ya.
 
-                                .help, untuk menampilkan pesan ini.
-                                .lihat, untuk menampilkan semua tugas.
-                                .tambah <tugas>, untuk menambahkan tugas.
-                                .hapus <id>, untuk menghapus tugas.");
+.help, untuk menampilkan pesan ini.
+.lihat, untuk menampilkan semua tugas.
+.tambah <tugas>, untuk menambahkan tugas.
+.hapus <id>, untuk menghapus tugas.");
 
                             $multi_msg = new MultiMessageBuilder();
                             $multi_msg->add($bantuan);
 
                             $result = $bot->replyMessage($event['replyToken'], $multi_msg);
+
+                            $response->getBody()->write(json_encode($result->getJSONDecodedBody()));
+                            return $response
+                                ->withHeader('Content-Type', 'application/json')
+                                ->withStatus($result->getHTTPStatus());
                         }
                         
                         # lihat tugas?
@@ -195,6 +200,11 @@ $app->post('/webhook', function (Request $request, Response $response) use ($cha
                                 $teks = "Tugas tidak dapat dihapus. Apa nomor ID yang Anda masukkan sudah benar?";
                                 $result = $bot->replyText($event['replyToken'], $teks);
                             }
+
+                            $response->getBody()->write(json_encode($result->getJSONDecodedBody()));
+                            return $response
+                                ->withHeader('Content-Type', 'application/json')
+                                ->withStatus($result->getHTTPStatus());
                         }
 
                         # tambah tugas
@@ -210,6 +220,11 @@ $app->post('/webhook', function (Request $request, Response $response) use ($cha
                                 $teks = "Hmm ... Tugas tidak dapat ditambahkan.";
                                 $result = $bot->replyText($event['replyToken'], $teks);
                             }
+
+                            $response->getBody()->write(json_encode($result->getJSONDecodedBody()));
+                            return $response
+                                ->withHeader('Content-Type', 'application/json')
+                                ->withStatus($result->getHTTPStatus());
                         } else {
                             # tidak di atas
                             # fuzzywuzzy to the action
@@ -233,14 +248,14 @@ $app->post('/webhook', function (Request $request, Response $response) use ($cha
                             # send back
                             $teks = "Maaf, tapi saya tidak mengerti. Mungkin maksud Anda {$kemungkinan}?";
                             $result = $bot->replyText($event['replyToken'], $teks);
+
+                            $response->getBody()->write(json_encode($result->getJSONDecodedBody()));
+                            return $response
+                                ->withHeader('Content-Type', 'application/json')
+                                ->withStatus($result->getHTTPStatus());
                         }
                     }
                 }
-     
-                $response->getBody()->write(json_encode($result->getJSONDecodedBody()));
-                return $response
-                    ->withHeader('Content-Type', 'application/json')
-                    ->withStatus($result->getHTTPStatus());
             }
         }
     }
