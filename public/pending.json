@@ -1,6 +1,6 @@
 {
   "type": "bubble",
-  "size": "nano",
+  "size": "micro",
   "header": {
     "type": "box",
     "layout": "vertical",
