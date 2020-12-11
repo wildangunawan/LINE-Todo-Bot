@@ -187,8 +187,8 @@ $app->post('/webhook', function (Request $request, Response $response) use ($cha
                                     'messages'   => [
                                         [
                                             'type'     => 'flex',
-                                            'altText'  => 'Test Flex Message',
-                                            'contents' => $flexTemplate
+                                            'altText'  => 'Lihat daftar tugas',
+                                            'contents' => json_encode($flexTemplate)
                                         ]
                                     ],
                                 ]);
@@ -204,13 +204,21 @@ $app->post('/webhook', function (Request $request, Response $response) use ($cha
                         else if (substr($event['message']['text'], 0, 6) == ".hapus"){
                             $id = substr($event['message']['text'], 7);
 
-                            $query = "DELETE FROM tugas WHERE room_id = '$sumber' AND id = '$id'";
+                            $query = "SELECT id FROM tugas WHERE room_id = '$sumber' AND id = '$id'";
+                            $result = mysqli_query($conn, $query);
 
-                            if (mysqli_query($conn, $query)){
-                                $teks = "Tugas berhasil terhapus!";
-                                $result = $bot->replyText($event['replyToken'], $teks);
+                            if (mysqli_num_rows($result) > 0){
+                                $query = "DELETE FROM tugas WHERE room_id = '$sumber' AND id = '$id'";
+
+                                if (mysqli_query($conn, $query)){
+                                    $teks = "Tugas berhasil terhapus!";
+                                    $result = $bot->replyText($event['replyToken'], $teks);
+                                } else {
+                                    $teks = "Tugas tidak dapat dihapus. Apa nomor ID yang Anda masukkan sudah benar?";
+                                    $result = $bot->replyText($event['replyToken'], $teks);
+                                }
                             } else {
-                                $teks = "Tugas tidak dapat dihapus. Apa nomor ID yang Anda masukkan sudah benar?";
+                                $teks = "Tugas tidak terhapus. Saya tidak dapat menemukan tugas dengan id: $id.";
                                 $result = $bot->replyText($event['replyToken'], $teks);
                             }
 
