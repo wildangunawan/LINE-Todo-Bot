@@ -168,7 +168,7 @@ $app->post('/webhook', function (Request $request, Response $response) use ($cha
                             } else {
                                 $counter = count($tugas);
                                 $flexTemplate = file_get_contents("pending.json"); 
-                                $flexTemplate = json_decode($flexTemplate);
+                                $flexTemplate = json_decode($flexTemplate, true);
 
                                 $flexTemplate['header']['contents'][1]['text'] = "Ada $counter tugas yang pending";
 
