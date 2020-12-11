@@ -48,7 +48,7 @@ $app->get('/', function (Request $request, Response $response, $args) {
 });
  
 // buat route untuk webhook
-$app->post('/webhook', function (Request $request, Response $response) use ($channel_secret, $bot, $httpClient, $pass_signature) {
+$app->post('/webhook', function (Request $request, Response $response) use ($channel_secret, $bot, $httpClient, $pass_signature, $conn) {
     // get request body and line signature header
     $body = $request->getBody();
     $signature = $request->getHeaderLine('HTTP_X_LINE_SIGNATURE');
