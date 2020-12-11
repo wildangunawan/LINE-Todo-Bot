@@ -104,6 +104,7 @@ $app->post('/webhook', function (Request $request, Response $response) use ($cha
             if ($event['type'] == 'message'){
                 // typenya text?
                 if($event['message']['type'] == 'text'){
+                    echo $event['message'];
 
                     # cek awalna
                     if (substr($event['message']['text'], 0, 1) == "."){
