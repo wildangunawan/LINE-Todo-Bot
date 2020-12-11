@@ -168,22 +168,23 @@ $app->post('/webhook', function (Request $request, Response $response) use ($cha
                             } else {
                                 $counter = count($tugas);
                                 $flexTemplate = file_get_contents("pending.json");
-                                $flexTemplate = json_decode($flexTemplate, true);
-
-                                $flexTemplate['header']['contents'][1]['text'] = "Ada $counter tugas yang pending";
-
-                                foreach ($tugas as $id => $detail) {
-                                    $flexTemplate['body']['contents']['contents'][] = [
-                                            "type" => "text",
-                                            "text" => $id . ". " . $detail,
-                                            "color" => "#8C8C8C",
-                                            "size" => "sm",
-                                            "wrap" => true
-                                    ];
-                                }
-
-                                $flexTemplate = json_encode($flexTemplate);
                                 error_log($flexTemplate);
+                                // $flexTemplate = json_decode($flexTemplate, true);
+
+                                // $flexTemplate['header']['contents'][1]['text'] = "Ada $counter tugas yang pending";
+
+                                // foreach ($tugas as $id => $detail) {
+                                //     $flexTemplate['body']['contents']['contents'][] = [
+                                //             "type" => "text",
+                                //             "text" => $id . ". " . $detail,
+                                //             "color" => "#8C8C8C",
+                                //             "size" => "sm",
+                                //             "wrap" => true
+                                //     ];
+                                // }
+
+                                // $flexTemplate = json_encode($flexTemplate);
+                                // error_log($flexTemplate);
 
                                 $result = $httpClient->post(LINEBot::DEFAULT_ENDPOINT_BASE . '/v2/bot/message/reply', [
                                     'replyToken' => $event['replyToken'],
