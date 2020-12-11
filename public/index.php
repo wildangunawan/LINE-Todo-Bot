@@ -153,7 +153,7 @@ $app->post('/webhook', function (Request $request, Response $response) use ($cha
                             $tugas = [];
 
                             // select di database
-                            $query = "SELECT `id`, `detail` FROM `tugas` WHERE `room_id` = '$sumber'";
+                            $query = "SELECT `id`, `detail` FROM `tugas` WHERE `room_id` = ". $sumber;
                             $result = mysqli_query($conn, $query);
 
                             if (mysqli_num_rows($result) > 0){
@@ -203,7 +203,7 @@ $app->post('/webhook', function (Request $request, Response $response) use ($cha
                         else if (substr($event['message']['text'], 0, 6) == ".hapus"){
                             $id = substr($event['message']['text'], 7);
 
-                            $query = "DELETE FROM `tugas` WHERE `room_id` = '$sumber' AND `id` = '$id'";
+                            $query = "DELETE FROM `tugas` WHERE `room_id` = ".$sumber." AND `id` = ".$id;
 
                             if (mysqli_query($conn, $query)){
                                 $teks = "Tugas berhasil terhapus!";
@@ -223,7 +223,7 @@ $app->post('/webhook', function (Request $request, Response $response) use ($cha
                         else if (substr($event['message']['text'], 0, 7) == ".tambah"){
                             $detail = substr($event['message']['text'], 8);
 
-                            $query = "INSERT INTO `tugas`(`room_id`, `detail`) VALUES ('$sumber', '$detail')";
+                            $query = "INSERT INTO `tugas`(`room_id`, `detail`) VALUES (".$sumber.", ".$detail.")";
 
                             if (mysqli_query($conn, $query)){
                                 $teks = "Tugas berhasil ditambahkan!";
