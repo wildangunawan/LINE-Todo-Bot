@@ -161,7 +161,7 @@ $app->post('/webhook', function (Request $request, Response $response) use ($cha
                                             "color" => "#8C8C8C",
                                             "size" => "sm",
                                             "wrap" => true
-                                    ]
+                                    ];
                                 }
 
                                 $result = $httpClient->post(LINEBot::DEFAULT_ENDPOINT_BASE . '/v2/bot/message/reply', [
