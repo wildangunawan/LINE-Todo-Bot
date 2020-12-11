@@ -16,7 +16,7 @@
       },
       {
         "type": "text",
-        "text": "dsadsads",
+        "text": "",
         "wrap": true,
         "size": "sm",
         "margin": "sm",
@@ -35,15 +35,7 @@
       {
         "type": "box",
         "layout": "vertical",
-        "contents": [
-          {
-            "type": "text",
-            "text": "2. hoho",
-            "color": "#8C8C8C",
-            "size": "sm",
-            "wrap": true
-          }
-        ],
+        "contents": [],
         "flex": 1
       }
     ],
