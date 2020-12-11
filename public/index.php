@@ -125,7 +125,7 @@ $app->post('/webhook', function (Request $request, Response $response) use ($cha
                     }
 
                     # ambil source
-                    if ($event['source']['type'] == "user"){userId
+                    if ($event['source']['type'] == "user"){
                         $sumber = $event['source']['userId'];
                     } else if ($event['source']['type'] == "room"){
                         $sumber = $event['source']['roomId'];
