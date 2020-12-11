@@ -154,7 +154,9 @@ $app->post('/webhook', function (Request $request, Response $response) use ($cha
 
                             // select di database
                             $query = "SELECT `id`, `detail` FROM `tugas` WHERE `room_id` = ". $sumber;
+                            echo $query;
                             $result = mysqli_query($conn, $query);
+                            echo $result;
 
                             if (mysqli_num_rows($result) > 0){
                                 while($row = mysqli_fetch_assoc($result)) {
