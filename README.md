@@ -19,10 +19,10 @@ Bot ini dibuat dengan bahasa PHP. Anda harus memiliki [Composer](https://getcomp
 1. Clone repository ini
 2. Buat sebuah database MySQL dengan nama apapun.
 3. Import file tugas.sql yang ada dalam folder database
-4. Apabila sudah, kembali ke terminal Anda. Masukkan perintah
-
-> composer install
-
+4. Apabila sudah, kembali ke terminal Anda. Jalankan perintah
+```
+composer install
+```
 5. Copy atau rename file [.env.example](.env.example) menjadi .env. Atur value setiap key di dalamnya.
 6. Apabila sudah selesai tanpa error, seharusnya Anda tinggal mengatur webhook di LINE Developers Console.
 
