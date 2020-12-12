@@ -2,10 +2,10 @@
 require __DIR__ . '/../vendor/autoload.php';
 
 // connection db
-$db_url = "103.129.220.6";
-$db_user = "wildanw1_line";
-$db_pwd = "i?Q?_6EO^{!R";
-$db_name = "wildanw1_line";
+$db_url = getenv('DB_HOST');
+$db_user = getenv('DB_UNAME');
+$db_pwd = getenv('DB_PWD');
+$db_name = getenv('DB_NAME');
 
 $conn = mysqli_connect($db_url, $db_user, $db_pwd, $db_name);
 
@@ -32,8 +32,8 @@ use FuzzyWuzzy\Process;
 $pass_signature = false;
  
 // set LINE channel_access_token and channel_secret
-$channel_access_token = "72KOAgZokzDGJ89j83xhWtT6xn/Ts+Ok1jfQ/hRcUdbo7ImD3Npmh7xnyJYUDMCZvO3up8nqRpUsbGtRYeLZwAXeXyYzh5dYfyNMbx/T2UC7BZGFAAHxJv47Qbuhfzzue60TTyRFjLqirTAr4N7ytQdB04t89/1O/w1cDnyilFU=";
-$channel_secret = "1e71a8cda2d3d78d6963a2d870db687b";
+$channel_access_token = getenv('CHANNEL_ACCESS_TOKEN');
+$channel_secret = getenv('CHANNEL_SECRET');
  
 // inisiasi objek bot
 $httpClient = new CurlHTTPClient($channel_access_token);
