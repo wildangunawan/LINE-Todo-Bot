@@ -1,5 +1,5 @@
 {
-    "name": "wildangunawan/line-bot",
+    "name": "wildangunawan/line-todo-bot",
     "description": "Simple LINE bot using PHP Slim framework",
     "type": "project",
     "require": {
@@ -14,7 +14,7 @@
         "laminas/laminas-diactoros": "^2.5",
         "wyndow/fuzzywuzzy": "^0.6.0"
     },
-    "license": "MIT",
+    "license": "GPL-3.0-or-later",
     "authors": [
         {
             "name": "Wildan Gunawan",
